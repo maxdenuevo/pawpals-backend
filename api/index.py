@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 import psycopg2
+from psycopg2.extras import RealDictCursor
 
 app = Flask(__name__)
 
@@ -7,7 +8,8 @@ connection = psycopg2.connect(
     dbname="pawpals",
     user="postgres",
     password="123456",
-    host="localhost"
+    host="localhost",
+    cursor_factory=RealDictCursor
 )
 
 @app.route('/')
@@ -50,8 +52,30 @@ def register_services_users():
     cursor.close()
     return jsonify({"message": "Usuario empresa creado correctamente"}), 201
 
-@app.route('/login', methods=['POST'])
-def login():
-    return "Login"
+@app.route('/login-pets-users', methods=['POST'])
+def login_pets_users():
+    body = request.get_json()
+    email = body.get('email')
+    password = body.get('password')
+    cursor = connection.cursor()
+    cursor.execute("SELECT * FROM pets_users WHERE email = %s", [email])
+    result = cursor.fetchone()
+    password_compare = result.get('password')
+    if password == password_compare:
+        return jsonify({"message": "Usuario autenticado correctamente"}), 200
+    return jsonify({"message": "Credenciales invalidas"}), 401
+
+@app.route('/login-services-users', methods=['POST'])
+def login_services_users():
+    body = request.get_json()
+    email = body.get('email')
+    password = body.get('password')
+    cursor = connection.cursor()
+    cursor.execute("SELECT * FROM services_users WHERE email = %s", [email])
+    result = cursor.fetchone()
+    password_compare = result.get('password')
+    if password == password_compare:
+        return jsonify({"message": "Usuario autenticado correctamente"}), 200
+    return jsonify({"message": "Credenciales invalidas"}), 401
 
 app.run(host='0.0.0.0', port=3000, debug=True)
