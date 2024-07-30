@@ -6,3 +6,6 @@ INSERT INTO services_users (username, email, photo, password)
 
 SELECT * FROM pets_users;
 SELECT * FROM services_users;
+
+SELECT * FROM pets_users WHERE email = 'gato1313@gmail.com';
+SELECT * FROM services_users WHERE email = 'empresa1@gmail.com';
