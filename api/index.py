@@ -1,6 +1,8 @@
 from flask import Flask, request, jsonify
 import psycopg2
 from psycopg2.extras import RealDictCursor
+import cloudinary
+import cloudinary.uploader
 
 app = Flask(__name__)
 
@@ -10,6 +12,12 @@ connection = psycopg2.connect(
     password="123456",
     host="localhost",
     cursor_factory=RealDictCursor
+)
+
+cloudinary.config(
+    cloud_name="USERNAME",
+    api_key="API KEY",
+    api_secret="SECRET KEY"
 )
 
 @app.route('/')
@@ -77,5 +85,19 @@ def login_services_users():
     if password == password_compare:
         return jsonify({"message": "Usuario autenticado correctamente"}), 200
     return jsonify({"message": "Credenciales invalidas"}), 401
+
+@app.route('/create-new-pets-posts', methods=['POST'])
+def create_new_pets_posts():
+    return "Create new pets posts"
+
+@app.route('/create-new-services-posts', methods=['POST'])
+def create_new_services_posts():
+    return "Create new pets posts"
+
+@app.route('/upload', methods=['POST'])
+def upload():
+    file = request.files['file']
+    result = cloudinary.uploader.upload(file)
+    return jsonify({"url": result['secure_url']})
 
 app.run(host='0.0.0.0', port=3000, debug=True)
