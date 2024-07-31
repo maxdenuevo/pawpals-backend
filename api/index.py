@@ -126,6 +126,38 @@ def create_new_services_posts():
     cursor.close()
     return jsonify({"message": "Post creado correctamente"}), 201
 
+@app.route('/create-new-comment-pets-posts', methods=['POST'])
+def create_new_comment_pets_posts():
+    body = request.get_json()
+    comment = body.get('comment')
+    id_pet_post = body.get('id_pet_post')
+    id_pet_user = body.get('id_pet_user')
+    cursor = connection.cursor()
+    cursor.execute("""
+        INSERT INTO pets_comments (comment, id_pet_post, id_pet_user) 
+	    VALUES (%s, %s,  %s);
+    """, [comment, id_pet_post, id_pet_user]
+    )
+    connection.commit()
+    cursor.close()
+    return jsonify({"message": "Comentario creado correctamente"}), 201
+
+@app.route('/create-new-comment-services-posts', methods=['POST'])
+def create_new_comment_services_posts():
+    body = request.get_json()
+    comment = body.get('comment')
+    id_service_post = body.get('id_service_post')
+    id_service_user = body.get('id_service_user')
+    cursor = connection.cursor()
+    cursor.execute("""
+        INSERT INTO services_comments (comment, id_service_post, id_service_user) 
+	    VALUES (%s, %s,  %s);
+    """, [comment, id_service_post, id_service_user]
+    )
+    connection.commit()
+    cursor.close()
+    return jsonify({"message": "Comentario creado correctamente"}), 201
+
 @app.route('/upload', methods=['POST'])
 def upload():
     file = request.files['file']
