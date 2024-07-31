@@ -15,9 +15,9 @@ connection = psycopg2.connect(
 )
 
 cloudinary.config(
-    cloud_name="USERNAME",
-    api_key="API KEY",
-    api_secret="SECRET KEY"
+    cloud_name="dcortesnet",
+    api_key="233389746826762",
+    api_secret="21LGIR3iYlIJsHcBYlXMNBS23U4"
 )
 
 @app.route('/')
@@ -88,11 +88,43 @@ def login_services_users():
 
 @app.route('/create-new-pets-posts', methods=['POST'])
 def create_new_pets_posts():
-    return "Create new pets posts"
+    data = request.form
+    title = data.get('title')
+    description = data.get('description')
+    id_pet_user = int(data.get('id_pet_user'))
+    photo = request.files['photo']
+    result = cloudinary.uploader.upload(photo)
+    photo_url = result['secure_url']
+
+    cursor = connection.cursor()
+    cursor.execute("""
+       INSERT INTO pets_posts (title, photo, description, id_pet_user)
+       VALUES (%s, %s, %s, %s);
+    """, [title, photo_url, description, id_pet_user]
+    )
+    connection.commit()
+    cursor.close()
+    return jsonify({"message": "Post creado correctamente"}), 201
 
 @app.route('/create-new-services-posts', methods=['POST'])
 def create_new_services_posts():
-    return "Create new pets posts"
+    data = request.form
+    title = data.get('title')
+    description = data.get('description')
+    id_service_user = int(data.get('id_service_user'))
+    photo = request.files['photo']
+    result = cloudinary.uploader.upload(photo)
+    photo_url = result['secure_url']
+
+    cursor = connection.cursor()
+    cursor.execute("""
+       INSERT INTO services_posts (title, photo, description, id_service_user)
+       VALUES (%s, %s, %s, %s);
+    """, [title, photo_url, description, id_service_user]
+    )
+    connection.commit()
+    cursor.close()
+    return jsonify({"message": "Post creado correctamente"}), 201
 
 @app.route('/upload', methods=['POST'])
 def upload():
