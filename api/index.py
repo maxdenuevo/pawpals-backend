@@ -24,10 +24,6 @@ cloudinary.config(
 def home():
     return 'Hello, Pawpals 4geeks!'
 
-@app.route('/about')
-def about():
-    return 'About'
-
 @app.route('/register-pets-users', methods=['POST'])
 def register_pets_users():
     body = request.get_json()
@@ -86,6 +82,38 @@ def login_services_users():
         return jsonify({"message": "Usuario autenticado correctamente"}), 200
     return jsonify({"message": "Credenciales invalidas"}), 401
 
+@app.route("/get-pets-posts", methods=["GET"])
+def get_pets_posts():
+    cursor = connection.cursor()
+    cursor.execute("SELECT * FROM pets_posts")
+    results = cursor.fetchall()
+    cursor.close()
+    return jsonify({"posts": results})
+
+@app.route("/get-services-posts", methods=["GET"])
+def get_services_posts():
+    cursor = connection.cursor()
+    cursor.execute("SELECT * FROM services_posts")
+    results = cursor.fetchall()
+    cursor.close()
+    return jsonify({"posts": results})
+
+@app.route('/get-pet-profile/<int:id_pet_user>')
+def get_pet_profile(id_pet_user):
+    cursor = connection.cursor()
+    cursor.execute("SELECT * FROM pets_users WHERE id_pet_user = %s", [id_pet_user])
+    result = cursor.fetchone()
+    cursor.close()
+    return jsonify({"profile": result})
+
+@app.route('/get-service-profile/<int:id_service_user>')
+def get_service_profile(id_service_user):
+    cursor = connection.cursor()
+    cursor.execute("SELECT * FROM services_users WHERE id_service_user = %s", [id_service_user])
+    result = cursor.fetchone()
+    cursor.close()
+    return jsonify({"profile": result})
+
 @app.route('/create-new-pets-posts', methods=['POST'])
 def create_new_pets_posts():
     data = request.form
@@ -95,7 +123,6 @@ def create_new_pets_posts():
     photo = request.files['photo']
     result = cloudinary.uploader.upload(photo)
     photo_url = result['secure_url']
-
     cursor = connection.cursor()
     cursor.execute("""
        INSERT INTO pets_posts (title, photo, description, id_pet_user)
@@ -158,37 +185,35 @@ def create_new_comment_services_posts():
     cursor.close()
     return jsonify({"message": "Comentario creado correctamente"}), 201
 
-@app.route("/get-pets-posts", methods=["GET"])
-def get_pets_posts():
+@app.route('/update-pet-profile/<int:id_pet_user>', methods=["PATCH"])
+def update_pet_profile(id_pet_user):
+    photo = request.files['photo']
+    result = cloudinary.uploader.upload(photo)
+    photo_url = result['secure_url']
     cursor = connection.cursor()
-    cursor.execute("SELECT * FROM pets_posts")
-    results = cursor.fetchall()
+    cursor.execute("""
+        UPDATE pets_users 
+        SET photo = %s
+        WHERE id_pet_user = %s;
+    """, [photo_url, id_pet_user])
+    connection.commit()
     cursor.close()
-    return jsonify({"posts": results})
+    return jsonify({"message": "Perfil actualizado correctamente"}), 200
 
-@app.route("/get-services-posts", methods=["GET"])
-def get_services_posts():
+@app.route('/update-service-profile/<int:id_service_user>', methods=["PATCH"])
+def update_services_profile(id_service_user):
+    photo = request.files['photo']
+    result = cloudinary.uploader.upload(photo)
+    photo_url = result['secure_url']
     cursor = connection.cursor()
-    cursor.execute("SELECT * FROM services_posts")
-    results = cursor.fetchall()
+    cursor.execute("""
+        UPDATE services_users 
+        SET photo = %s
+        WHERE id_service_user = %s;
+    """, [photo_url, id_service_user])
+    connection.commit()
     cursor.close()
-    return jsonify({"posts": results})
-
-@app.route('/get-pet-profile/<int:id_pet_user>')
-def get_pet_profile(id_pet_user):
-    cursor = connection.cursor()
-    cursor.execute("SELECT * FROM pets_users WHERE id_pet_user = %s", [id_pet_user])
-    result = cursor.fetchone()
-    cursor.close()
-    return jsonify({"profile": result})
-
-@app.route('/get-service-profile/<int:id_service_user>')
-def get_service_profile(id_service_user):
-    cursor = connection.cursor()
-    cursor.execute("SELECT * FROM services_users WHERE id_service_user = %s", [id_service_user])
-    result = cursor.fetchone()
-    cursor.close()
-    return jsonify({"profile": result})
+    return jsonify({"message": "Perfil actualizado correctamente"}), 200
 
 @app.route('/upload', methods=['POST'])
 def upload():
