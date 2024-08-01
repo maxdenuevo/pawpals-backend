@@ -215,6 +215,36 @@ def update_services_profile(id_service_user):
     cursor.close()
     return jsonify({"message": "Perfil actualizado correctamente"}), 200
 
+@app.route('/search-pets-users', methods=["GET"])
+def search_pets_users():
+    params = request.args
+    username = params.get('username')
+    cursor = connection.cursor()
+    cursor.execute(
+        """
+        SELECT * FROM pets_users WHERE username ILIKE %s
+        """,
+        ['%' + username + '%']
+    )
+    results = cursor.fetchall()
+    cursor.close()
+    return jsonify({"results": results}), 200
+
+@app.route('/search-services-users', methods=["GET"])
+def search_services_users():
+    params = request.args
+    username = params.get('username')
+    cursor = connection.cursor()
+    cursor.execute(
+        """
+        SELECT * FROM services_users WHERE username ILIKE %s
+        """,
+        ['%' + username + '%']
+    )
+    results = cursor.fetchall()
+    cursor.close()
+    return jsonify({"results": results}), 200
+
 @app.route('/upload', methods=['POST'])
 def upload():
     file = request.files['file']
