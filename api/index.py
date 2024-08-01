@@ -158,6 +158,38 @@ def create_new_comment_services_posts():
     cursor.close()
     return jsonify({"message": "Comentario creado correctamente"}), 201
 
+@app.route("/get-pets-posts", methods=["GET"])
+def get_pets_posts():
+    cursor = connection.cursor()
+    cursor.execute("SELECT * FROM pets_posts")
+    results = cursor.fetchall()
+    cursor.close()
+    return jsonify({"posts": results})
+
+@app.route("/get-services-posts", methods=["GET"])
+def get_services_posts():
+    cursor = connection.cursor()
+    cursor.execute("SELECT * FROM services_posts")
+    results = cursor.fetchall()
+    cursor.close()
+    return jsonify({"posts": results})
+
+@app.route('/get-pet-profile/<int:id_pet_user>')
+def get_pet_profile(id_pet_user):
+    cursor = connection.cursor()
+    cursor.execute("SELECT * FROM pets_users WHERE id_pet_user = %s", [id_pet_user])
+    result = cursor.fetchone()
+    cursor.close()
+    return jsonify({"profile": result})
+
+@app.route('/get-service-profile/<int:id_service_user>')
+def get_service_profile(id_service_user):
+    cursor = connection.cursor()
+    cursor.execute("SELECT * FROM services_users WHERE id_service_user = %s", [id_service_user])
+    result = cursor.fetchone()
+    cursor.close()
+    return jsonify({"profile": result})
+
 @app.route('/upload', methods=['POST'])
 def upload():
     file = request.files['file']
